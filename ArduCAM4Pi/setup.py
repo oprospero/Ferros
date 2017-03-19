@@ -1,16 +1,16 @@
 from distutils.core import setup, Extension
 
-module1 = Extension('demo',
+module1 = Extension('ArduCam',
                     include_dirs = [''],
                     libraries = [''],
-                    sources = ['demo.c'])
+                    sources = ['arducam.c'])
 
-setup (name = 'PackageName',
+setup (name = 'ArduCamModule',
        version = '1.0',
-       description = 'This is a demo package',
-       author = 'Martin v. Loewis',
-       author_email = 'martin@v.loewis.de',
-       url = 'https://docs.python.org/extending/building',
+       description = 'Wrapper module for ArduCam',
+       author = 'Prosper Van',
+       author_email = 'N/A',
+       url = 'N/A',
        long_description = '''
 This is really just a demo package.
 ''',
