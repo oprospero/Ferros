@@ -41,20 +41,17 @@ void setSpeed(int speed)
   analogWrite(PIN_MOTOR2_SPD, speed);  
 }
 
-volatile bool gt = false;
-
 unsigned long lastTimeLeftEncoder = 0;
 unsigned long lastTimeRightEncoder = 0;
 volatile unsigned long currentTimeLeftEncoder = 0;
 volatile unsigned long currentTimeRightEncoder = 0;
 
 void ISR_getLeftEncoderTime() {
-  currentTimeLeftEncoder = micros();
-//  currentTimeRightEncoder = micros();
+  currentTimeLeftEncoder = millis();
 }
 
 void ISR_getRightEncoderTime() {
-  currentTimeRightEncoder = micros();
+  currentTimeRightEncoder = millis();
 }
 
 void setup() {
@@ -77,16 +74,32 @@ void setup() {
   motorForward();
 
   attachInterrupt(digitalPinToInterrupt(PIN_ENCODER_1), ISR_getLeftEncoderTime, RISING);
+  attachInterrupt(digitalPinToInterrupt(PIN_ENCODER_2), ISR_getRightEncoderTime, RISING);
 }
 
 void loop() {
   if (currentTimeLeftEncoder > lastTimeLeftEncoder)
   {
     unsigned long diff = currentTimeLeftEncoder - lastTimeLeftEncoder;
+    Serial.print("L: ");
     Serial.println(diff);
     lastTimeLeftEncoder = currentTimeLeftEncoder;
   }
-  delay(100);
+  
+  if (currentTimeRightEncoder > lastTimeRightEncoder)
+  {
+    unsigned long diff = currentTimeRightEncoder - lastTimeRightEncoder;
+    Serial.print("R: ");
+    Serial.println(diff);
+    lastTimeRightEncoder = currentTimeRightEncoder;
+  }
+  
+//  if (Serial.available())
+//  {
+//    int num = Serial.parseInt();
+//    
+//    setSpeed(num);
+//  }
 //  Serial.println(currentTimeLeftEncoder);
 //  Serial.println(gt);
 
