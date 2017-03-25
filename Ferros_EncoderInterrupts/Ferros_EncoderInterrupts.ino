@@ -93,36 +93,37 @@ void loop() {
     Serial.println(diff);
     lastTimeRightEncoder = currentTimeRightEncoder;
   }
+
   
-//  if (Serial.available())
-//  {
-//    int num = Serial.parseInt();
-//    
-//    setSpeed(num);
-//  }
+  if (Serial.available())
+  {
+    int num = Serial.parseInt();
+    
+    setSpeed(num);
+  }
 //  Serial.println(currentTimeLeftEncoder);
 //  Serial.println(gt);
 
-//  if (enc1 == HIGH && enc1Last != HIGH)
-//  {
-//    enc1Last = HIGH;
-//    unsigned long t = micros();
-//    unsigned long diff = t - lastTimeLowHigh;
-//    lastTimeLowHigh = t;
-//    
-//    Serial.print("Encoder 1: HIGH ");
-//    Serial.println(diff);
-//  }
-//  else if (enc1 == LOW && enc1Last != LOW)
-//  {
-//    enc1Last = LOW;
-//    unsigned long t = micros();
-//    unsigned long diff = t - lastTimeHighLow;
-//    lastTimeHighLow = t;
-//    Serial.print("Encoder 1: LOW ");
-//    Serial.println(diff);
-//  }
-//
+  if (enc1 == HIGH && enc1Last != HIGH)
+  {
+    enc1Last = HIGH;
+    unsigned long t = micros();
+    unsigned long diff = t - lastTimeLowHigh;
+    lastTimeLowHigh = t;
+    
+    Serial.print("Encoder 1: HIGH ");
+    Serial.println(diff);
+  }
+  else if (enc1 == LOW && enc1Last != LOW)
+  {
+    enc1Last = LOW;
+    unsigned long t = micros();
+    unsigned long diff = t - lastTimeHighLow;
+    lastTimeHighLow = t;
+    Serial.print("Encoder 1: LOW ");
+    Serial.println(diff);
+  }
+
 //  if (enc2 == HIGH && enc2Last != HIGH)
 //  {
 //    enc2Last = HIGH;
