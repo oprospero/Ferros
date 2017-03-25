@@ -2,19 +2,22 @@
 #ifndef MOTOR_H
 #define MOTOR_H
 
-
-#endif //MOTOR_H
+#include <arduino.h>
 
 class Motor
 {
 public:
     // Motor(int a1, int a1, int aSpd, int b1, int b2, int bSpd, int enable);
     Motor();
-    begin();
-    enable();
-    disable();
-    leftForward(int speed);
-    leftBackward(int speed);
-    rightForward(int speed);
-    rightBackward(int speed);
-}
+    void begin();
+    void enable();
+    void disable();
+    void stop();
+    void leftForward(int speed);
+    void leftBackward(int speed);
+    void rightForward(int speed);
+    void rightBackward(int speed);
+};
+
+
+#endif //MOTOR_H

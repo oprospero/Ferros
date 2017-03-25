@@ -14,8 +14,8 @@ Encoder::Encoder() :
 
 void Encoder::begin()
 {
-    attachInterrupt(digitalPinToInterrupt(PIN_ENCODER_1), ISR_getLeftEncoderTime, RISING);
-    attachInterrupt(digitalPinToInterrupt(PIN_ENCODER_2), ISR_getRightEncoderTime, RISING);
+    pinMode(PIN_ENCODER_1, INPUT);
+    pinMode(PIN_ENCODER_2, INPUT);
 }
 
 float Encoder::getLeftSpeed()
