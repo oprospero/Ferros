@@ -20,5 +20,8 @@
 #define PIN_GRIPPER_LIFT 9
 #define PIN_GRIPPER_CLAW 10
 
+#define PIN_SONAR_TRIG A0
+#define PIN_SONAR_ECHO A1
+
 
 #endif //PINDEF_H
