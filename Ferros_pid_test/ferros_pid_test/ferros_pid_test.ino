@@ -1,5 +1,5 @@
 #include <PID_v1.h>
-#include <encoderInterrupt.h>
+#include "encoderInterrupt.h"
 
 #define PIN_INPUT 0
 #define PIN_OUTPUT 3
