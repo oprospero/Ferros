@@ -1,23 +1,24 @@
 
 #define PIN_MOTOR1_IN1 4
-#define PIN_MOTOR1_IN2 5
+#define PIN_MOTOR1_IN2 12
 
 #define PIN_MOTOR2_IN1 7
 #define PIN_MOTOR2_IN2 8
 
-#define PIN_MOTOR1_SPD 6
-#define PIN_MOTOR2_SPD 9
+#define PIN_MOTOR1_SPD 5
+#define PIN_MOTOR2_SPD 6
 
 #define PIN_MOTOR_ENB 13
 
 #define PIN_ENCODER_1 2
 #define PIN_ENCODER_2 3
 
+#define SPEED_TIMEOUT 100000
 
 void motorFullSpeed()
 {
   digitalWrite(PIN_MOTOR1_SPD, HIGH);
-  digitalWrite(PIN_MOTOR2_SPD, HIGH);  
+  digitalWrite(PIN_MOTOR2_SPD, HIGH);
 }
 
 void motorStop()
@@ -38,21 +39,31 @@ void motorForward()
 void setSpeed(int speed)
 {
   analogWrite(PIN_MOTOR1_SPD, speed);
-  analogWrite(PIN_MOTOR2_SPD, speed);  
+  analogWrite(PIN_MOTOR2_SPD, speed);
 }
 
-unsigned long lastTimeLeftEncoder = 0;
-unsigned long lastTimeRightEncoder = 0;
-volatile unsigned long currentTimeLeftEncoder = 0;
-volatile unsigned long currentTimeRightEncoder = 0;
+unsigned long lastTimeLeft = 0;
+unsigned long lastTimeRight = 0;
+unsigned long currentTimeLeftEncoder = 0;
+unsigned long currentTimeRightEncoder = 0;
 
-void ISR_getLeftEncoderTime() {
-  currentTimeLeftEncoder = millis();
+
+volatile bool leftTrigger;
+volatile bool rightTrigger;
+
+float leftSpeed;
+float rightSpeed;
+
+void ISR_getLeftEncoderTime()
+{
+    leftTrigger = true;
 }
 
-void ISR_getRightEncoderTime() {
-  currentTimeRightEncoder = millis();
+void ISR_getRightEncoderTime()
+{
+    rightTrigger = true;
 }
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -74,65 +85,34 @@ void setup() {
   motorForward();
 
   attachInterrupt(digitalPinToInterrupt(PIN_ENCODER_1), ISR_getLeftEncoderTime, RISING);
-  attachInterrupt(digitalPinToInterrupt(PIN_ENCODER_2), ISR_getRightEncoderTime, RISING);
+//  attachInterrupt(digitalPinToInterrupt(PIN_ENCODER_2), ISR_getRightEncoderTime, HIGH);
 }
 
 void loop() {
-  if (currentTimeLeftEncoder > lastTimeLeftEncoder)
-  {
-    unsigned long diff = currentTimeLeftEncoder - lastTimeLeftEncoder;
-    Serial.print("L: ");
-    Serial.println(diff);
-    lastTimeLeftEncoder = currentTimeLeftEncoder;
-  }
   
-  if (currentTimeRightEncoder > lastTimeRightEncoder)
+  unsigned long currentTime = micros();
+  unsigned long diff = currentTime - lastTimeLeft;
+  if (leftTrigger)
   {
-    unsigned long diff = currentTimeRightEncoder - lastTimeRightEncoder;
-    Serial.print("R: ");
-    Serial.println(diff);
-    lastTimeRightEncoder = currentTimeRightEncoder;
+      leftSpeed = 100000.0 / (float)diff;
+      lastTimeLeft = currentTime;
+      leftTrigger = false;
+      Serial.println(diff);
+  }
+  else if (diff < SPEED_TIMEOUT)
+  {
+      // We can try to do some predictive logic here
+      leftSpeed = leftSpeed;
+  }
+  else
+  {
+      leftSpeed = 0;
   }
 
-  
   if (Serial.available())
   {
     int num = Serial.parseInt();
-    
+
     setSpeed(num);
   }
-//  Serial.println(currentTimeLeftEncoder);
-//  Serial.println(gt);
-
-  if (enc1 == HIGH && enc1Last != HIGH)
-  {
-    enc1Last = HIGH;
-    unsigned long t = micros();
-    unsigned long diff = t - lastTimeLowHigh;
-    lastTimeLowHigh = t;
-    
-    Serial.print("Encoder 1: HIGH ");
-    Serial.println(diff);
-  }
-  else if (enc1 == LOW && enc1Last != LOW)
-  {
-    enc1Last = LOW;
-    unsigned long t = micros();
-    unsigned long diff = t - lastTimeHighLow;
-    lastTimeHighLow = t;
-    Serial.print("Encoder 1: LOW ");
-    Serial.println(diff);
-  }
-
-//  if (enc2 == HIGH && enc2Last != HIGH)
-//  {
-//    enc2Last = HIGH;
-//    Serial.println("Encoder 2: HIGH");
-//  }
-//  else if (enc2 == LOW && enc2Last != LOW)
-//  {
-//    enc2Last = LOW;
-//    Serial.println("Encoder 2: LOW");
-//  }
-  
 }

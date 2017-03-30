@@ -27,6 +27,7 @@ float Encoder::getLeftSpeed()
 {
     unsigned long currentTime = micros();
     unsigned long diff = currentTime - lastTimeLeft;
+    Serial.println(diff);
     if (leftTrigger)
     {
         leftSpeed = 100000.0 / (float)diff;

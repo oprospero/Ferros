@@ -5,10 +5,10 @@
 Encoder::Encoder() :
 	leftTrigger,
 	rightTrigger,
-    lastTimeLeft(0),
-    lastTimeRight(0),
-    diffLeft(0),
-    diffRight(0)
+  lastTimeLeft(0),
+  lastTimeRight(0),
+  diffLeft(0),
+  diffRight(0)
 {
 }
 
@@ -19,33 +19,33 @@ void Encoder::begin()
 }
 
 void Encoder::pollSpeed()
-{ 
-    int enc1 = digitalRead(PIN_ENCODER_1);
-    int enc2 = digitalRead(PIN_ENCODER_2);
- 
-    if (enc1 == HIGH && enc1Last != HIGH)
+{
+    int leftPin = digitalRead(PIN_ENCODER_1);
+    int rightPin = digitalRead(PIN_ENCODER_2);
+
+    unsigned long currentTime = micros();
+    unsigned long diffLeft = currentTime - lastTimeLeft;
+
+    if (leftPin == HIGH && leftPinLast != HIGH)
     {
-        enc1Last = HIGH;
-        unsigned long t = micros();
-        unsigned long diff = t - lastTimeLowHigh;
-        lastTimeLowHigh = t;
-        
-        Serial.print("Encoder 1: HIGH ");
-        Serial.println(diff);
+        leftPinLast = HIGH;
+        lastTimeLowHigh = currentTime;
+				leftSpeed = 100000.0 / (float) diffLeft;
+
     }
-    else if (enc1 == LOW && enc1Last != LOW)
+    else if (leftPin == LOW && leftPinLast != LOW)
     {
-        enc1Last = LOW;
-        unsigned long t = micros();
-        unsigned long diff = t - lastTimeHighLow;
-        lastTimeHighLow = t;
-        Serial.print("Encoder 1: LOW ");
-        Serial.println(diff);
+        leftPinLast = LOW;
+        lastTimeHighLow = currentTime;
     }
+
+
+    unsigned long diffRight = currentTime - lastTimeRight;
 }
 
 float Encoder::getLeftSpeed()
 {
+    int enc1 = digitalRead(PIN_ENCODER_1);
     unsigned long currentTime = micros();
     unsigned long diff = currentTime - lastTimeLeftEncoder;
     if ()

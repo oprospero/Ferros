@@ -2,7 +2,7 @@
 #ifndef ENCODER_H
 #define ENCODER_H
 
-#define SPEED_TIMEOUT 50000
+#define SPEED_TIMEOUT 100000
 
 void ISR_getLeftEncoderTime();
 void ISR_getRightEncoderTime();

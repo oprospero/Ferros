@@ -68,6 +68,7 @@ void setup() {
 }
 
 void loop() {
+  delay(2);
   int enc1 = digitalRead(PIN_ENCODER_1);
   int enc2 = digitalRead(PIN_ENCODER_2);
 
@@ -100,6 +101,13 @@ void loop() {
   {
     enc2Last = LOW;
     Serial.println("Encoder 2: LOW");
+  }
+  
+  if (Serial.available())
+  {
+    int num = Serial.parseInt();
+
+    setSpeed(num);
   }
   
 }
