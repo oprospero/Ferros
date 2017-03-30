@@ -2,16 +2,16 @@
 #include "encoderInterrupt.h"
 #include "motor.h"
 
-#define PIN_INPUT 0
-#define PIN_OUTPUT 3
 
 unsigned int throttle;
+int steeringTrim;
+bool speedup;
 
 //Define Variables we'll be connecting to
 double Setpoint, Input, Output;
 
 //Specify the links and initial tuning parameters
-double Kp = 2, Ki = 5, Kd = 1;
+double Kp = 1, Ki = 0, Kd = 0;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 Encoder encoder;
@@ -22,7 +22,10 @@ unsigned long lastTime = 0;
 void setup()
 {
 
-  throttle = 0;
+  throttle = 200;
+  // Po
+  steeringTrim = 100;
+  speedup = true;
   encoder.begin();
   motor.begin();
   Serial.begin(115200);
@@ -33,21 +36,33 @@ void setup()
 
   //turn the PID on
   myPID.SetMode(AUTOMATIC);
+  Serial.println("Ready Player One");
 }
 
 void loop()
 {
-  Input = encoder.getLeftSpeed() - encoder.getRightSpeed();
+  float lspd = encoder.getLeftSpeed();
+  float rspd = encoder.getRightSpeed();
+//  Serial.print("lspd: "); Serial.println(lspd);
+//  Serial.print("rspd: "); Serial.println(rspd);
+  Input = lspd - rspd + steeringTrim;
   myPID.Compute();
-  motor.leftForward(throttle + Output);
-  motor.rightForward(throttle - Output);
+  motor.leftForward(throttle - Output);
+  motor.rightForward(throttle + Output);
 
   unsigned long currentTime = millis();
   unsigned long elapsedTime = currentTime - lastTime;
+
   
-  if(elapsedTime > 1000)
+  if(elapsedTime > 500)
   {
-    throttle += 5;
+  Serial.print("I: "); Serial.println(Input);
+  Serial.print("O: "); Serial.println(Output);
+//    if (speedup) throttle += 10;
+//    else throttle -= 15;
+    if (throttle > 300) speedup = false;
+    if (throttle < 0) speedup = true;
+    Serial.print("T: "); Serial.println(throttle);
     lastTime = currentTime;
   }
   

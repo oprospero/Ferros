@@ -9,6 +9,7 @@ void ISR_getRightEncoderTime();
 
 class Encoder
 {
+public:
 	unsigned long lastTimeLeft;
 	unsigned long lastTimeRight;
 	float leftSpeed;
@@ -17,7 +18,7 @@ class Encoder
 	Encoder();
 	void begin();
 
-  void pollSpeed();
+    void pollSpeed();
 
 	float getLeftSpeed();
 	float getRightSpeed();

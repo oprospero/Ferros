@@ -6,6 +6,7 @@
 volatile bool leftTrigger;
 volatile bool rightTrigger;
 
+
 Encoder::Encoder() :
     lastTimeLeft(0),
     lastTimeRight(0),
@@ -28,13 +29,14 @@ float Encoder::getLeftSpeed()
     unsigned long diff = currentTime - lastTimeLeft;
     if (leftTrigger)
     {
-        leftSpeed = 1.0 / diff;
+        leftSpeed = 100000.0 / (float)diff;
         lastTimeLeft = currentTime;
         leftTrigger = false;
     }
     else if (diff < SPEED_TIMEOUT)
     {
-        leftSpeed = leftSpeed / 2.0;
+        // We can try to do some predictive logic here
+        leftSpeed = leftSpeed;
     }
     else
     {
@@ -50,13 +52,14 @@ float Encoder::getRightSpeed()
     unsigned long diff = currentTime - lastTimeRight;
     if (rightTrigger)
     {
-        rightSpeed = 1.0 / diff;
+        rightSpeed = 100000.0 / (float)diff;
         lastTimeRight = currentTime;
         rightTrigger = false;
     }
     else if (diff < SPEED_TIMEOUT)
     {
-        rightSpeed = rightSpeed / 2.0;
+        // We can try to do some predictive logic here
+        rightSpeed = rightSpeed;
     }
     else
     {

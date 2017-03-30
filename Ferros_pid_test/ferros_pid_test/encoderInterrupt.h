@@ -18,7 +18,7 @@ public:
 	Encoder();
 	void begin();
 
-  void pollSpeed();
+    void pollSpeed();
 
 	float getLeftSpeed();
 	float getRightSpeed();
