@@ -2,7 +2,7 @@
 #ifndef ENCODER_H
 #define ENCODER_H
 
-#define SPEED_TIMEOUT 50000
+#define SPEED_TIMEOUT 100000
 
 class Encoder
 {
@@ -21,8 +21,6 @@ class Encoder
     float getLeftSpeed();
     float getRightSpeed();
 
-    // ISR_getLeftEncoderTime();
-    // ISR_getRightEncoderTime();
 
 }
 

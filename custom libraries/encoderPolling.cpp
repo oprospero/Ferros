@@ -29,40 +29,45 @@ void Encoder::pollSpeed()
     if (leftPin == HIGH && leftPinLast != HIGH)
     {
         leftPinLast = HIGH;
-        lastTimeLowHigh = currentTime;
+        lastTimeLeft = currentTime;
 				leftSpeed = 100000.0 / (float) diffLeft;
 
     }
     else if (leftPin == LOW && leftPinLast != LOW)
     {
         leftPinLast = LOW;
-        lastTimeHighLow = currentTime;
     }
-
+		if (diffLeft > SPEED_TIMEOUT)
+		{
+			leftSpeed = 0;
+		}
 
     unsigned long diffRight = currentTime - lastTimeRight;
+
+    if (rightPin == HIGH && rightPinLast != HIGH)
+    {
+        rightPinLast = HIGH;
+        lastTimeRight = currentTime;
+				rightSpeed = 100000.0 / (float) diffRight;
+
+    }
+    else if (rightPin == LOW && rightPinLast != LOW)
+    {
+        rightPinLast = LOW;
+    }
+		if (diffRight > SPEED_TIMEOUT)
+		{
+			rightSpeed = 0;
+		}
+
 }
 
 float Encoder::getLeftSpeed()
 {
-    int enc1 = digitalRead(PIN_ENCODER_1);
-    unsigned long currentTime = micros();
-    unsigned long diff = currentTime - lastTimeLeftEncoder;
-    if ()
-    return 1.0 / diffLeft;
+	return leftSpeed;
 }
 
 float Encoder::gethRightSpeed()
 {
-    return 1.0 / diffRight;
-}
-
-void Encoder::ISR_getLeftEncoderTime()
-{
-    leftTrigger = true;
-}
-
-void Encoder::ISR_getRightEncoderTime()
-{
-    rightTrigger = true;
+	return rightSpeed;
 }
