@@ -4,9 +4,6 @@
 
 #define SPEED_TIMEOUT 100000
 
-void ISR_getLeftEncoderTime();
-void ISR_getRightEncoderTime();
-
 class Encoder
 {
 public:
@@ -14,14 +11,23 @@ public:
 	unsigned long lastTimeRight;
 	float leftSpeed;
 	float rightSpeed;
+	bool leftPinLast;
+	bool rightPinLast;
+	int leftCount;
+	int rightCount;
 
 	Encoder();
 	void begin();
 
-    void pollSpeed();
+	void poll();
 
 	float getLeftSpeed();
 	float getRightSpeed();
+	float getLeftCount();
+	float getRightCount();
+
+	void resetCount();
+
 
 };
 
