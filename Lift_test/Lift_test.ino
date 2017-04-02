@@ -1,7 +1,8 @@
 #include "gripper.h"
-
+#include "ranger.h"
 
 Gripper g;
+Ranger r;
 int pos;
 bool climb;
 
@@ -11,6 +12,7 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
   g.begin();
+  r.begin();
   pos = 0;
   climb = true;
   targetLift = true;
@@ -18,12 +20,15 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  Serial.println(pos);
+//  Serial.println(pos);
   g.setLift(pos);
   g.setClaw(pos);
   
   delay(200);
+  int dist = r.getDist();
+  Serial.println(dist);
 
+  
   if (Serial.available())
   {
     int num = Serial.parseInt();
