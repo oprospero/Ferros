@@ -23,8 +23,8 @@ public:
 
 	float getLeftSpeed();
 	float getRightSpeed();
-	float getLeftCount();
-	float getRightCount();
+	int getLeftCount();
+	int getRightCount();
 
 	void resetCount();
 

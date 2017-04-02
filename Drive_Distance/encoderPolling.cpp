@@ -38,6 +38,7 @@ void Encoder::poll()
     }
     else if (leftPin == LOW && leftPinLast != LOW)
     {
+        leftCount++;
         leftPinLast = LOW;
     }
 		if (diffLeft > SPEED_TIMEOUT)
@@ -56,6 +57,7 @@ void Encoder::poll()
     }
     else if (rightPin == LOW && rightPinLast != LOW)
     {
+        rightCount++;
         rightPinLast = LOW;
     }
 		if (diffRight > SPEED_TIMEOUT)
