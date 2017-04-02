@@ -76,3 +76,13 @@ float Encoder::getRightSpeed()
 {
 	return rightSpeed;
 }
+
+int Encoder::getLeftCount()
+{
+  return leftCount;
+}
+
+int Encoder::getRightSpeed()
+{
+  return rightCount;
+}
