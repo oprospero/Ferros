@@ -82,12 +82,12 @@ int Encoder::getLeftCount()
   return leftCount;
 }
 
-int Encoder::getRightSpeed()
+int Encoder::getRightCount()
 {
   return rightCount;
 }
 
-int Encoder::resetCount()
+void Encoder::resetCount()
 {
   leftCount = 0;
   rightCount = 0;
