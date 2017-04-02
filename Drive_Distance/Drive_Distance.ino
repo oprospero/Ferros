@@ -38,7 +38,7 @@ void setup()
   Serial.begin(115200);
   distance = 0; // target distance
   moved = 0; // encoder counts to track how far we moved
-  inchesToCount = (6.0/20.0);
+  inchesToCount = (20.0/7.5); // 20 counts / 6 inches * correction factor
 
   //initialize the variables we're linked to
   Input = 0;
@@ -47,7 +47,7 @@ void setup()
   //turn the PID on
   myPID.SetMode(AUTOMATIC);
   myPID.SetSampleTime(10);
-  myPID.SetOutputLimits(-255.0,255.0);
+  myPID.SetOutputLimits(-255.0, 255.0);
   Serial.println("Ready Player One");
 }
 
@@ -60,15 +60,20 @@ void loop()
 {
   if (Serial.available())
   {
-    if(Serial.parseFloat() != targetDistance)
+    float newDistance = Serial.parseFloat();
+    Serial.print("new: "); Serial.println(newDistance);
+    if (newDistance != targetDistance)
     {
-      distance = (int)(targetDistance * inchesToCount);
+      distance = (int)(newDistance * inchesToCount);
       moved = 0;
       encoder.resetCount();
     } // this is now how many inches to move
   }
+
+  motor.stop();
   while (moved < distance)
   {
+
     encoder.poll();
     float lspd = encoder.getLeftSpeed();
     float rspd = encoder.getRightSpeed(); // read this side
@@ -90,22 +95,21 @@ void loop()
     unsigned long currentTime = millis();
     unsigned long elapsedTime = currentTime - lastTime;
 
+    moved = encoder.getLeftCount();
 
-    if(elapsedTime > 200)
+    if (elapsedTime > 200)
     {
-  //    Serial.print("T: "); Serial.println(throttle);
-  //    Serial.print("lspd: "); Serial.println(lspd);
-  //  Serial.print("rspd: "); Serial.println(rspd);
-    Serial.print("I: "); Serial.println(Input);
-    Serial.print("O: "); Serial.println(Output);
       if (speedup) throttle += 5;
-  //    else throttle -= 15;
+      //    else throttle -= 15;
       if (throttle > 300) speedup = false;
       if (throttle < 0) speedup = true;
       lastTime = currentTime;
+      Serial.print("Target Distance :"); Serial.println(distance);
+      Serial.print("Moved :"); Serial.println(moved);
     }
 
-    moved += encoder.getLeftCount();
+
+
 
   }
 
