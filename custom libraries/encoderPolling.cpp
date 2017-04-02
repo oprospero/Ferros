@@ -1,14 +1,17 @@
 
+#include <Arduino.h>
 #include "encoderPolling.h"
 #include "pindef.h"
 
 Encoder::Encoder() :
-	leftTrigger,
-	rightTrigger,
   lastTimeLeft(0),
   lastTimeRight(0),
-  diffLeft(0),
-  diffRight(0)
+	leftSpeed(0),
+	rightSpeed(0),
+	leftPinLast(false),
+	rightPinLast(false),
+	leftCount(0),
+	rightCount(0)
 {
 }
 
@@ -18,7 +21,7 @@ void Encoder::begin()
     pinMode(PIN_ENCODER_2, INPUT);
 }
 
-void Encoder::pollSpeed()
+void Encoder::poll()
 {
     int leftPin = digitalRead(PIN_ENCODER_1);
     int rightPin = digitalRead(PIN_ENCODER_2);
@@ -31,10 +34,11 @@ void Encoder::pollSpeed()
         leftPinLast = HIGH;
         lastTimeLeft = currentTime;
 				leftSpeed = 100000.0 / (float) diffLeft;
-
+				// Serial.println(diffLeft);
     }
     else if (leftPin == LOW && leftPinLast != LOW)
     {
+        leftCount++;
         leftPinLast = LOW;
     }
 		if (diffLeft > SPEED_TIMEOUT)
@@ -53,6 +57,7 @@ void Encoder::pollSpeed()
     }
     else if (rightPin == LOW && rightPinLast != LOW)
     {
+        rightCount++;
         rightPinLast = LOW;
     }
 		if (diffRight > SPEED_TIMEOUT)
@@ -67,7 +72,23 @@ float Encoder::getLeftSpeed()
 	return leftSpeed;
 }
 
-float Encoder::gethRightSpeed()
+float Encoder::getRightSpeed()
 {
 	return rightSpeed;
+}
+
+int Encoder::getLeftCount()
+{
+  return leftCount;
+}
+
+int Encoder::getRightSpeed()
+{
+  return rightCount;
+}
+
+int Encoder::resetCount()
+{
+  leftCount = 0;
+  rightCount = 0;
 }

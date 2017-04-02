@@ -6,22 +6,29 @@
 
 class Encoder
 {
-	volatile bool leftTrigger;
-	volatile bool rightTrigger;
+public:
 	unsigned long lastTimeLeft;
 	unsigned long lastTimeRight;
 	float leftSpeed;
 	float rightSpeed;
+	bool leftPinLast;
+	bool rightPinLast;
+	int leftCount;
+	int rightCount;
 
-    Encoder();
-    void begin();
+	Encoder();
+	void begin();
 
-    void pollSpeed();
+	void poll();
 
-    float getLeftSpeed();
-    float getRightSpeed();
+	float getLeftSpeed();
+	float getRightSpeed();
+	int getLeftCount();
+	int getRightCount();
+
+	void resetCount();
 
 
-}
+};
 
 #endif //ENCODER_H
