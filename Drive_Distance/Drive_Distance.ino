@@ -12,10 +12,7 @@ bool speedup;
 double Setpoint, Input, Output;
 
 //Distance to drive
-int distance; // target distance to move in counts
-int moved; // number of counts moved
 float targetDistance; //target distance in inches
-float inchesToCount; // conversion factor from inches to count (e.g 2" = 100 counts)
 
 //Specify the links and initial tuning parameters
 double Kp = 2, Ki = 0, Kd = 0;
@@ -36,9 +33,7 @@ void setup()
   encoder.begin();
   motor.begin();
   Serial.begin(115200);
-  distance = 0; // target distance
-  moved = 0; // encoder counts to track how far we moved
-  inchesToCount = (20.0/7.5); // 20 counts / 6 inches * correction factor
+
 
   //initialize the variables we're linked to
   Input = 0;
@@ -51,27 +46,24 @@ void setup()
   Serial.println("Ready Player One");
 }
 
-void moveForward()
+/*
+function: moveForward
+
+Parameters
+inches (float): distance to move forward robot in inches
+
+returns void
+
+*/
+void moveForward(float inches)
 {
-
-}
-
-void loop()
-{
-  if (Serial.available())
-  {
-    float newDistance = Serial.parseFloat();
-    Serial.print("new: "); Serial.println(newDistance);
-    if (newDistance != targetDistance)
-    {
-      distance = (int)(newDistance * inchesToCount);
-      moved = 0;
-      encoder.resetCount();
-    } // this is now how many inches to move
-  }
-
-  motor.stop();
-  while (moved < distance)
+   encoder.resetCount();
+   throttle = 140;
+   int moved = 0;
+   float inchesToCount = (20.0/7.5); // 20 counts / correction
+   int distance = (int)(inchesToCount * inches);
+   
+   while (moved < distance)
   {
 
     encoder.poll();
@@ -101,16 +93,22 @@ void loop()
     {
       if (speedup) throttle += 5;
       //    else throttle -= 15;
-      if (throttle > 300) speedup = false;
-      if (throttle < 0) speedup = true;
+      if (throttle > 200) throttle = 200;
       lastTime = currentTime;
-      Serial.print("Target Distance :"); Serial.println(distance);
-      Serial.print("Moved :"); Serial.println(moved);
     }
-
-
-
-
   }
+  motor.stop();
+}
 
+void loop()
+{
+  if (Serial.available())
+  {
+    float newDistance = Serial.parseFloat();
+    Serial.print("new: "); Serial.println(newDistance);
+    if (newDistance > 0.0f)
+    {
+      moveForward(newDistance);
+    } // this is now how many inches to move
+  }
 }
