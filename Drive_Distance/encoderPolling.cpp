@@ -86,3 +86,9 @@ int Encoder::getRightSpeed()
 {
   return rightCount;
 }
+
+int Encoder::resetCount()
+{
+  leftCount = 0;
+  rightCount = 0;
+}
