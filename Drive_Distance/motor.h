@@ -13,10 +13,14 @@ public:
     void enable();
     void disable();
     void stop();
+
     void leftForward(int speed);
     void leftBackward(int speed);
     void rightForward(int speed);
     void rightBackward(int speed);
+
+    void left(int speed);
+    void right(int speed);
 };
 
 

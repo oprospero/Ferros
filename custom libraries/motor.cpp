@@ -70,3 +70,27 @@ void Motor::rightBackward(int speed)
   digitalWrite(PIN_MOTOR2_IN2, HIGH);
   analogWrite(PIN_MOTOR2_SPD, speed);
 }
+
+void Motor::left(int speed)
+{
+  if (speed >= 0)
+  {
+    leftForward(speed);
+  }
+  else if (speed < 0)
+  {
+    leftBackward(speed);
+  }
+}
+
+void Motor::right(int speed)
+{
+  if (speed >= 0)
+  {
+    rightForward(speed);
+  }
+  else if (speed < 0)
+  {
+    rightBackward(speed);
+  }
+}
