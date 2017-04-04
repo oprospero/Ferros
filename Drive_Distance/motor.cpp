@@ -79,7 +79,7 @@ void Motor::left(int speed)
   }
   else if (speed < 0)
   {
-    leftBackward(speed);
+    leftBackward(-speed);
   }
 }
 
@@ -91,6 +91,6 @@ void Motor::right(int speed)
   }
   else if (speed < 0)
   {
-    rightBackward(speed);
+    rightBackward(-speed);
   }
 }
