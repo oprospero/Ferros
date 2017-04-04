@@ -25,7 +25,7 @@ void setup()
 
   throttle = 50;
   // Po
-  steeringTrim = -1.5;
+  steeringTrim = -1.7;
   speedup = true;
   encoder.begin();
   motor.begin();
@@ -47,18 +47,24 @@ void loop()
   encoder.poll();
   float lspd = encoder.getLeftSpeed();
   float rspd = encoder.getRightSpeed();
+  if ((lspd == 0 && rspd > 0) ||
+    (lspd > 0 && rspd == 0)
+  )
+  {
+    Input = (lspd - rspd) * 2;
+  }
   Input = lspd - rspd;
   myPID.Compute();
 
-  if (throttle < 160)
+  if (throttle < 100)
   {
-    motor.leftForward(0);
-    motor.rightForward(0);
+    motor.left(0);
+    motor.right(0);
   }
   else
   {
-    motor.leftForward(throttle - Output);
-    motor.rightForward(throttle + Output);
+    motor.left(throttle - Output);
+    motor.right(throttle + Output);
   }
 
   unsigned long currentTime = millis();
@@ -83,12 +89,12 @@ void loop()
 //  Serial.print("rspd: "); Serial.println(rspd);
   Serial.print("I: "); Serial.println(Input);
   Serial.print("O: "); Serial.println(Output);
-    if (speedup) throttle += 5;
+    if (speedup) throttle += 10;
 //    else throttle -= 15;
-    if (throttle > 300) speedup = false;
+    // if (throttle > 300) speedup = false;
+    if (throttle > 200) throttle = 200;
     if (throttle < 0) speedup = true;
     lastTime = currentTime;
   }
 
 }
-
