@@ -6,11 +6,24 @@
 #define TRAVEL_FEETS 40
 #define STEERINGTRIM -1.5
 
-#define THROTTLE_START 100
+#define THROTTLE_START 130
 #define THROTTLE_MAX 200
 #define THROTTLE_STEP 5
 #define THROTTLE_STEP_TIME 200
 
+#define INCH_COUNT_CONVERSION 20.0/7.5
+
+#define SCAN_RANGE 80
+#define SCAN_STEPS 8
+#define SCAN_POINTS (SCAN_RANGE/SCAN_STEPS)+1 //Must be an odd number
+
+#define DEPTH_THRESHOLD 200
+#define RANGE_OK_GRAB 60
+#define RANGE_TOO_CLOSE 40
+#define RANGE_MAX 300
+#define RANGE_OBJ_DIFF 50
+
+#define RANGE_INCH_CONVERSION 1.0/50.0
 #define INCH_COUNT_CONVERSION 20.0/7.5
 
 int phase = 0;
@@ -18,14 +31,16 @@ int steeringTrim;
 double Kp = 2, Ki = 0, Kd = 0;
 double Setpoint, Input, Output;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
+int targetDist;
 
 Encoder encoder;
 Motor motor;
 Ranger range;
 
-void moveForward(float inches)
+int moveForward(float inches, bool align)
 {
    encoder.resetCount();
+   int preDist = 8000;
    int throttle = THROTTLE_START;
    int moved = 0;
    float inchesToCount = (INCH_COUNT_CONVERSION); // 20 counts / correction
@@ -71,8 +86,22 @@ void moveForward(float inches)
       if (throttle > THROTTLE_MAX) throttle = THROTTLE_MAX;
       lastTime = currentTime;
     }
+
+    if (align)
+    {
+      int dist = range.getDist();
+      if (
+        dist > preDist + DEPTH_THRESHOLD ||
+        dist < RANGE_OK_GRAB
+      )
+      {
+        preDist = dist;
+        break;
+      }
+    }
   }
   motor.stop();
+  return preDist;
 }
 
 
@@ -91,6 +120,7 @@ void setup() {
 }
 
 
+
 void turn(float degree)
 {
   bool clockwise = true;
@@ -104,8 +134,11 @@ void turn(float degree)
    int avg_moved = 0;
    float degreeToCount = (20.0/160.0); // 20 counts / correction
    int turnCount = (int)(degreeToCount * degree);
+   Serial.print("Count: "); Serial.println(turnCount);
    Setpoint = 0;
-   Serial.print("TurnCount: "); Serial.println(turnCount);
+
+   unsigned long lastTime = micros();
+   
    while (avg_moved < turnCount)
   {
 
@@ -147,7 +180,7 @@ void turn(float degree)
 
     if (elapsedTime > THROTTLE_STEP_TIME)
     {
-      if (speedup) rotation += 5;
+      rotation += THROTTLE_STEP;
       if (rotation > THROTTLE_MAX) rotation = THROTTLE_MAX;
       lastTime = currentTime;
     }
@@ -155,11 +188,106 @@ void turn(float degree)
   motor.stop();
 }
 
-void scan()
+int scan()
 {
+  Serial.println("Starting Scan");
+  int objectDist[SCAN_POINTS];
+  for (int i = 0; i < SCAN_POINTS; i++)
+    objectDist[i] = 8000;
+
+  int zeroOffset = 0;
+  turn(-SCAN_RANGE/2);
+  zeroOffset = -SCAN_RANGE/2;
+  delay(500);
   
+  objectDist[0] = range.getDist();
+  Serial.println("Scanning Right");
+  int ioi = 0;
+  for (int i = 1; i < SCAN_POINTS; i++)
+  {
+    turn(SCAN_STEPS);
+    zeroOffset += SCAN_STEPS;
+    delay(500);
+    objectDist[i] = range.getDist();
+    Serial.println(objectDist[i]);
+    if (objectDist[i] > objectDist[i-1] + DEPTH_THRESHOLD)
+    {
+      ioi = i;
+      turn(SCAN_STEPS);
+      zeroOffset += SCAN_STEPS;
+      break;
+    }
+    ioi = i;
+  }
+
+  int minDist = 8000;
+  int minDistIndex = -1;
+  for (int i = 0; i < SCAN_POINTS;  i++)
+  {
+    if (objectDist[i] < minDist)
+    {
+      minDist = objectDist[i];
+      minDistIndex = i;
+    }
+  }
+
+  if (minDist < RANGE_MAX)
+  {
+    objectDist[0] = range.getDist();
+    Serial.println("Scanning Left");
+    for (int i = 1; i < SCAN_POINTS; i++)
+    {
+      turn(-SCAN_STEPS);
+      zeroOffset -= SCAN_STEPS;
+      delay(500);
+      objectDist[i] = range.getDist();
+      Serial.println(objectDist[i]);
+  
+      int diff = abs(objectDist[i] - minDist);
+      if (diff < RANGE_OBJ_DIFF &&
+      objectDist[i] < objectDist[i-1] - DEPTH_THRESHOLD)
+      {
+        Serial.println("right edge");
+        zeroOffset = SCAN_STEPS;
+      }
+      else if (objectDist[i] > objectDist[i-1] + DEPTH_THRESHOLD)
+      {
+        Serial.println("left edge");
+        turn(SCAN_STEPS);
+        zeroOffset += SCAN_STEPS;
+        break;
+      }
+    }
+    Serial.println(-zeroOffset/2);
+    turn(-zeroOffset/2);
+  }
+  else
+  {
+    Serial.println(-zeroOffset);
+    turn(-zeroOffset);
+  }
+
+  return minDist;
 }
 
+
 void loop() {
-  Serial.println(range.getDist());
+  int dis = 8000;
+  
+  moveForward(6, false);
+  delay(500);
+  while (dis > RANGE_OK_GRAB)
+  {
+    Serial.println("Searching");
+    int box = scan();
+    delay(100);
+    dis = moveForward(box * RANGE_INCH_CONVERSION, true);
+    delay(500);
+  }
+  // Haul ass
+  Serial.println("Onward");
+  moveForward(4 * 12, false);
+  
+//    int dis = range.getDist();
+//    Serial.println(dis);
 }
