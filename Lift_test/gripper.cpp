@@ -4,9 +4,9 @@
 #include "pindef.h"
 
 #define LIFT_MAX_VALUE 180
-#define LIFT_MIN_VALUE 35
+#define LIFT_MIN_VALUE 0
 #define CLAW_MAX_VALUE 120
-#define CLAW_MIN_VALUE 0
+#define CLAW_MIN_VALUE 40
 
 
 Gripper::Gripper()
