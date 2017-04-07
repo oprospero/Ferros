@@ -40,9 +40,12 @@ void Ranger::begin()
   sensor.init();
   sensor.setTimeout(500);
 
-#if defined LONG_RANGE
   // lower the return signal rate limit (default is 0.25 MCPS)
-  sensor.setSignalRateLimit(0.1);
+  // Signal strength threshold. 
+  // Lower values will increase range and wider view
+  // Higher values will decrease range with narrow view
+  sensor.setSignalRateLimit(0.6); 
+#if defined LONG_RANGE
   // increase laser pulse periods (defaults are 14 and 10 PCLKs)
   sensor.setVcselPulsePeriod(VL53L0X::VcselPeriodPreRange, 18);
   sensor.setVcselPulsePeriod(VL53L0X::VcselPeriodFinalRange, 14);
@@ -53,7 +56,7 @@ void Ranger::begin()
   sensor.setMeasurementTimingBudget(20000);
 #elif defined HIGH_ACCURACY
   // increase timing budget to 200 ms
-  sensor.setMeasurementTimingBudget(200000);
+  sensor.setMeasurementTimingBudget(100000);
 #endif
 }
 

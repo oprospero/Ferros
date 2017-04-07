@@ -2,6 +2,8 @@
 #ifndef GRIPPER_H
 #define GRIPPER_H
 
+#include <Servo.h>
+
 class Gripper
 {
     Servo sLift;
@@ -16,7 +18,7 @@ class Gripper
 
     void reset();
 
-}
+};
 
 
 #endif //GRIPPER_H

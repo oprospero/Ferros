@@ -1,4 +1,5 @@
 
+#include "pindef.h"
 #include "gripper.h"
 #include <Servo.h>
 
