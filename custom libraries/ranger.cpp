@@ -2,8 +2,10 @@
 
 
 #include "ranger.h"
+#include "pindef.h"
 #include <Wire.h>
 #include <VL53L0X.h>
+#include <Arduino.h>
 
 
 // Uncomment this line to use long range mode. This

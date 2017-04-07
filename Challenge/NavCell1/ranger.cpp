@@ -2,8 +2,10 @@
 
 
 #include "ranger.h"
+#include "pindef.h"
 #include <Wire.h>
 #include <VL53L0X.h>
+#include <Arduino.h>
 
 
 // Uncomment this line to use long range mode. This
@@ -35,16 +37,18 @@ Ranger::~Ranger()
 
 void Ranger::begin()
 {
+
+  pinMode(PIN_PROXIMITY, INPUT);
   Wire.begin();
 
   sensor.init();
   sensor.setTimeout(500);
 
   // lower the return signal rate limit (default is 0.25 MCPS)
-  // Signal strength threshold. 
+  // Signal strength threshold.
   // Lower values will increase range and wider view
   // Higher values will decrease range with narrow view
-  sensor.setSignalRateLimit(0.6); 
+  sensor.setSignalRateLimit(0.6);
 #if defined LONG_RANGE
   // increase laser pulse periods (defaults are 14 and 10 PCLKs)
   sensor.setVcselPulsePeriod(VL53L0X::VcselPeriodPreRange, 18);
@@ -65,4 +69,9 @@ int Ranger::getDist()
   int result;
   result = sensor.readRangeSingleMillimeters();
   return result;
+}
+
+int Ranger::getProxy()
+{
+  return digitalRead(PIN_PROXIMITY);
 }

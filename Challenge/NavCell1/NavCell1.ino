@@ -3,6 +3,9 @@
 #include "motor.h"
 #include "ranger.h"
 
+#define STEER_AWAY_WALL 5;
+#define STEER_TO_WALL 1;
+
 #define TRAVEL_FEETS 40
 #define STEERINGTRIM -1.5
 
@@ -12,6 +15,7 @@
 #define THROTTLE_STEP_TIME 200
 
 #define INCH_COUNT_CONVERSION 20.0/7.5
+#define DEGREE_COUNT_CONVERSION 20.0/160.0
 
 #define SCAN_RANGE 80
 #define SCAN_STEPS 8
@@ -39,15 +43,15 @@ Ranger range;
 
 int moveForward(float inches, bool align)
 {
-   encoder.resetCount();
-   int preDist = 8000;
-   int throttle = THROTTLE_START;
-   int moved = 0;
-   float inchesToCount = (INCH_COUNT_CONVERSION); // 20 counts / correction
-   int distance = (int)(inchesToCount * inches);
-   unsigned long lastTime = micros();
+  encoder.resetCount();
+  Setpoint = STEERINGTRIM;
+  int throttle = THROTTLE_START;
+  int moved = 0;
+  float inchesToCount = (INCH_COUNT_CONVERSION); // 20 counts / correction
+  int distance = (int)(inchesToCount * inches);
+  unsigned long lastTime = micros();
    
-   while (moved < distance)
+  while (moved < distance)
   {
     
     encoder.poll();
@@ -89,19 +93,19 @@ int moveForward(float inches, bool align)
 
     if (align)
     {
-      int dist = range.getDist();
-      if (
-        dist > preDist + DEPTH_THRESHOLD ||
-        dist < RANGE_OK_GRAB
-      )
+      int wallProxy = range.getProxy();
+      if (wallProxy)
       {
-        preDist = dist;
-        break;
+        Setpoint += STEER_AWAY_WALL;
+      }
+      else
+      {
+        Setpoint -= STEER_TO_WALL;
       }
     }
   }
   motor.stop();
-  return preDist;
+  return moved;
 }
 
 
@@ -121,7 +125,7 @@ void setup() {
 
 
 
-void turn(float degree)
+float turn(float degree, bool align)
 {
   bool clockwise = true;
   if (degree < 0)
@@ -132,7 +136,7 @@ void turn(float degree)
    encoder.resetCount();
    int rotation = 140;
    int avg_moved = 0;
-   float degreeToCount = (20.0/160.0); // 20 counts / correction
+   float degreeToCount = DEGREE_COUNT_CONVERSION; // 20 counts / correction
    int turnCount = (int)(degreeToCount * degree);
    Serial.print("Count: "); Serial.println(turnCount);
    Setpoint = 0;
@@ -184,110 +188,35 @@ void turn(float degree)
       if (rotation > THROTTLE_MAX) rotation = THROTTLE_MAX;
       lastTime = currentTime;
     }
+    
+    if (align)
+    {
+      int wallProxy = range.getProxy();
+      if (wallProxy)
+      {
+        moveForward(3, false);
+      }
+    }
   }
   motor.stop();
+
+  return avg_moved / degreeToCount;
 }
 
-int scan()
-{
-  Serial.println("Starting Scan");
-  int objectDist[SCAN_POINTS];
-  for (int i = 0; i < SCAN_POINTS; i++)
-    objectDist[i] = 8000;
-
-  int zeroOffset = 0;
-  turn(-SCAN_RANGE/2);
-  zeroOffset = -SCAN_RANGE/2;
-  delay(500);
-  
-  objectDist[0] = range.getDist();
-  Serial.println("Scanning Right");
-  int ioi = 0;
-  for (int i = 1; i < SCAN_POINTS; i++)
-  {
-    turn(SCAN_STEPS);
-    zeroOffset += SCAN_STEPS;
-    delay(500);
-    objectDist[i] = range.getDist();
-    Serial.println(objectDist[i]);
-    if (objectDist[i] > objectDist[i-1] + DEPTH_THRESHOLD)
-    {
-      ioi = i;
-      turn(SCAN_STEPS);
-      zeroOffset += SCAN_STEPS;
-      break;
-    }
-    ioi = i;
-  }
-
-  int minDist = 8000;
-  int minDistIndex = -1;
-  for (int i = 0; i < SCAN_POINTS;  i++)
-  {
-    if (objectDist[i] < minDist)
-    {
-      minDist = objectDist[i];
-      minDistIndex = i;
-    }
-  }
-
-  if (minDist < RANGE_MAX)
-  {
-    objectDist[0] = range.getDist();
-    Serial.println("Scanning Left");
-    for (int i = 1; i < SCAN_POINTS; i++)
-    {
-      turn(-SCAN_STEPS);
-      zeroOffset -= SCAN_STEPS;
-      delay(500);
-      objectDist[i] = range.getDist();
-      Serial.println(objectDist[i]);
-  
-      int diff = abs(objectDist[i] - minDist);
-      if (diff < RANGE_OBJ_DIFF &&
-      objectDist[i] < objectDist[i-1] - DEPTH_THRESHOLD)
-      {
-        Serial.println("right edge");
-        zeroOffset = SCAN_STEPS;
-      }
-      else if (objectDist[i] > objectDist[i-1] + DEPTH_THRESHOLD)
-      {
-        Serial.println("left edge");
-        turn(SCAN_STEPS);
-        zeroOffset += SCAN_STEPS;
-        break;
-      }
-    }
-    Serial.println(-zeroOffset/2);
-    turn(-zeroOffset/2);
-  }
-  else
-  {
-    Serial.println(-zeroOffset);
-    turn(-zeroOffset);
-  }
-
-  return minDist;
-}
 
 
 void loop() {
-  int dis = 8000;
+  float feets = 7;
+  float inches = feets * 12;
+  moveForward(inches, true);
+  turn(-90.0, true);
   
-  moveForward(6, false);
-  delay(500);
-  while (dis > RANGE_OK_GRAB)
-  {
-    Serial.println("Searching");
-    int box = scan();
-    delay(100);
-    dis = moveForward(box * RANGE_INCH_CONVERSION, true);
-    delay(500);
-  }
-  // Haul ass
-  Serial.println("Onward");
-  moveForward(4 * 12, false);
+  feets = 3;
+  inches = feets * 12;
+  moveForward(inches, true);
+  turn(-90.0, true);
   
-//    int dis = range.getDist();
-//    Serial.println(dis);
+  feets = 7;
+  inches = feets * 12;
+  moveForward(inches, true);
 }

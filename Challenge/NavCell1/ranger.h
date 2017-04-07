@@ -16,6 +16,7 @@ public:
   void begin();
 
   int getDist();
+  int getProxy();
 };
 
 
