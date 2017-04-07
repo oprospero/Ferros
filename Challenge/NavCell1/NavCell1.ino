@@ -17,7 +17,7 @@
 #define INCH_COUNT_CONVERSION 20.0/7.5
 #define DEGREE_COUNT_CONVERSION 20.0/160.0
 
-#define SCAN_RANGE 80
+#define SCAN_RANGE 75
 #define SCAN_STEPS 8
 #define SCAN_POINTS (SCAN_RANGE/SCAN_STEPS)+1 //Must be an odd number
 
@@ -41,7 +41,43 @@ Encoder encoder;
 Motor motor;
 Ranger range;
 
-int moveForward(float inches, bool align)
+
+float scan()
+{
+  int preDist = 8000;
+  int zeroOffset = 0;
+  bool wallFound = false;
+  preDist = range.getDist();
+  Serial.println("Scanning Left");
+  for (int i = 0; i < SCAN_POINTS; i++)
+  {
+    turn(-SCAN_STEPS, true);
+    zeroOffset -= SCAN_STEPS;
+    delay(300);
+    int dist = range.getDist();
+
+    if (dist < preDist - DEPTH_THRESHOLD)
+    {
+      preDist = dist;
+      break;
+    }
+  }
+  if (wallFound)
+  {
+    float dratio = 150.0/preDist;
+    float degree = asin(dratio);
+  
+    if (degree > 45) degree = 45;
+  
+    turn(degree, false);
+  
+    float distInch = preDist / INCH_COUNT_CONVERSION;
+    return distInch;
+  }
+  return preDist;
+}
+
+float moveForward(float inches, bool align)
 {
   encoder.resetCount();
   Setpoint = STEERINGTRIM;
@@ -105,7 +141,7 @@ int moveForward(float inches, bool align)
     }
   }
   motor.stop();
-  return moved;
+  return moved / INCH_COUNT_CONVERSION;
 }
 
 
@@ -128,6 +164,7 @@ void setup() {
 float turn(float degree, bool align)
 {
   bool clockwise = true;
+  int trys = 0;
   if (degree < 0)
   {
     clockwise = false;
@@ -145,7 +182,7 @@ float turn(float degree, bool align)
    
    while (avg_moved < turnCount)
   {
-
+    
     encoder.poll();
     float lspd = encoder.getLeftSpeed();
     float rspd = encoder.getRightSpeed(); // read this side
@@ -192,9 +229,12 @@ float turn(float degree, bool align)
     if (align)
     {
       int wallProxy = range.getProxy();
-      if (wallProxy)
+      if (wallProxy == 1)
       {
         moveForward(3, false);
+        wallProxy = range.getProxy();
+        if (wallProxy == 1)
+          break;
       }
     }
   }
@@ -203,7 +243,7 @@ float turn(float degree, bool align)
   return avg_moved / degreeToCount;
 }
 
-
+#if 0
 
 void loop() {
   float feets = 7;
@@ -220,3 +260,35 @@ void loop() {
   inches = feets * 12;
   moveForward(inches, true);
 }
+
+#else
+void loop() {
+  float feets = 5;
+  float inches = feets * 12;
+  moveForward(inches, true);
+  int dist = scan();
+
+  while (dist < 3000)
+  {
+    inches = dist + 6;
+    moveForward(inches, true);
+    dist = scan();
+  }
+  
+  feets = 3;
+  inches = feets * 12;
+  moveForward(inches, true);
+  dist = scan();
+  
+  while (dist < 3000)
+  {
+    inches = dist + 6;
+    moveForward(inches, true);
+    dist = scan();
+  }
+  
+  feets = 8;
+  inches = feets * 12;
+  moveForward(inches, true);
+}
+#endif
