@@ -1,7 +1,12 @@
 
-#include "pindef.h"
 #include "gripper.h"
-#include <Servo.h>
+#include <Arduino.h>
+#include "pindef.h"
+
+#define LIFT_MAX_VALUE 180
+#define LIFT_MIN_VALUE 0
+#define CLAW_MAX_VALUE 120
+#define CLAW_MIN_VALUE 40
 
 
 Gripper::Gripper()
@@ -22,11 +27,15 @@ void Gripper::begin()
 
 void Gripper::setLift(int pos)
 {
-    sLift.write(pos);
+  if (pos > LIFT_MAX_VALUE) pos = LIFT_MAX_VALUE;
+  if (pos < LIFT_MIN_VALUE) pos = LIFT_MIN_VALUE;
+  sLift.write(pos);
 }
 
 void Gripper::setClaw(int pos)
 {
+  if (pos > CLAW_MAX_VALUE) pos = CLAW_MAX_VALUE;
+  if (pos < CLAW_MIN_VALUE) pos = CLAW_MIN_VALUE;
     sClaw.write(pos);
 }
 

@@ -1,11 +1,12 @@
 
+#include <Servo.h>
+
 #ifndef GRIPPER_H
 #define GRIPPER_H
 
-#include <Servo.h>
-
 class Gripper
 {
+public:
     Servo sLift;
     Servo sClaw;
     Gripper();
