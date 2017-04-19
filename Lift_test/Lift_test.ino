@@ -22,7 +22,7 @@ void loop() {
   // put your main code here, to run repeatedly:
 //  Serial.println(pos);
   g.setLift(pos);
-  g.setClaw(pos);
+//  g.setClaw(pos);
   
   delay(200);
   int dist = r.getDist();

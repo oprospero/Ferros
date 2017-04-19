@@ -7,8 +7,8 @@
 #define TRAVEL_FEETS 40
 #define STEERINGTRIM -1.5
 
-#define THROTTLE_START 130
-#define THROTTLE_MAX 200
+#define THROTTLE_START 120
+#define THROTTLE_MAX 240
 #define THROTTLE_STEP 5
 #define THROTTLE_STEP_TIME 200
 
@@ -30,7 +30,7 @@
 
 int phase = 0;
 int steeringTrim;
-double Kp = 2, Ki = 0, Kd = 0;
+double Kp = 2.4, Ki = 0, Kd = 0;
 double Setpoint, Input, Output;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 int targetDist;
@@ -44,8 +44,10 @@ void setup() {
   Serial.begin(115200);
   steeringTrim = STEERINGTRIM;
   Setpoint = steeringTrim;
+  
   myPID.SetMode(AUTOMATIC);
   myPID.SetSampleTime(10);
+  myPID.SetControllerDirection(REVERSE);
   myPID.SetOutputLimits(-255.0, 255.0);
   encoder.begin();
   motor.begin();
@@ -292,9 +294,9 @@ void loop() {
   //Grap box
 
   grip.setLift(10);
-  delay(500);
+  delay(1000);
   grip.setClaw(40);
-  delay(500);
+  delay(1000);
   grip.setLift(180);
   
   // Haul ass

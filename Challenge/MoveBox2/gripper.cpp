@@ -3,8 +3,8 @@
 #include <Arduino.h>
 #include "pindef.h"
 
-#define LIFT_MAX_VALUE 180
-#define LIFT_MIN_VALUE 0
+#define LIFT_MAX_VALUE 170
+#define LIFT_MIN_VALUE 15
 #define CLAW_MAX_VALUE 120
 #define CLAW_MIN_VALUE 40
 

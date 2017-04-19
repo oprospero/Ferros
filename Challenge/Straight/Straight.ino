@@ -3,17 +3,17 @@
 #include "motor.h"
 
 #define TRAVEL_FEETS 40
-#define STEERINGTRIM -1.5
+#define STEERINGTRIM -5
 
-#define THROTTLE_START 100
-#define THROTTLE_MAX 200
+#define THROTTLE_START 200
+#define THROTTLE_MAX 255
 #define THROTTLE_STEP 5
 #define THROTTLE_STEP_TIME 200
 
 #define INCH_COUNT_CONVERSION 20.0/7.5
 
 int steeringTrim;
-double Kp = 2, Ki = 0, Kd = 0;
+double Kp = 2.4, Ki = 0, Kd = 0;
 double Setpoint, Input, Output;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
@@ -50,7 +50,7 @@ void moveForward(float inches)
       (lspd > 0 && rspd == 0)
     )
     {
-      Input = Input * 4;
+      Input = Input * 1.5;
     }
     myPID.Compute();
 
@@ -64,6 +64,7 @@ void moveForward(float inches)
       motor.left(throttle - Output);
       motor.right(throttle + Output);
     }
+    Serial.println(Output);
 
     unsigned long currentTime = millis();
     unsigned long elapsedTime = currentTime - lastTime;
@@ -84,15 +85,16 @@ void moveForward(float inches)
 
 void setup() {
   // put your setup code here, to run once:
-
+  Serial.begin(115200);
   steeringTrim = STEERINGTRIM;
   Setpoint = steeringTrim;
   myPID.SetMode(AUTOMATIC);
   myPID.SetSampleTime(10);
+  myPID.SetControllerDirection(REVERSE);
   myPID.SetOutputLimits(-255.0, 255.0);
   encoder.begin();
   motor.begin();
-  delay(2000);
+  delay(3000);
 }
 
 void loop() {

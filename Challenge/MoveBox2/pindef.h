@@ -17,8 +17,8 @@
 #define PIN_ENCODER_1 2
 #define PIN_ENCODER_2 3
 
-#define PIN_GRIPPER_LIFT 9
-#define PIN_GRIPPER_CLAW 10
+#define PIN_GRIPPER_LIFT 10
+#define PIN_GRIPPER_CLAW 9
 
 #define PIN_SONAR_TRIG A0
 #define PIN_SONAR_ECHO A1

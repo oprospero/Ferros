@@ -7,10 +7,10 @@
 #define STEER_TO_WALL 1;
 
 #define TRAVEL_FEETS 40
-#define STEERINGTRIM -1.5
+#define STEERINGTRIM -4.5
 
-#define THROTTLE_START 130
-#define THROTTLE_MAX 200
+#define THROTTLE_START 140
+#define THROTTLE_MAX 255
 #define THROTTLE_STEP 5
 #define THROTTLE_STEP_TIME 200
 
@@ -32,7 +32,7 @@
 
 int phase = 0;
 int steeringTrim;
-double Kp = 2, Ki = 0, Kd = 0;
+double Kp = 2.4, Ki = 0, Kd = 0;
 double Setpoint, Input, Output;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 int targetDist;
